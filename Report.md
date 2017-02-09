@@ -16,10 +16,10 @@ The goals / steps of this project are the following:
 [image1]: ./img/model.png "Model Visualization"
 [image2]: ./img/Dataset.png "Udacity Dataset"
 [image3]: ./img/Augmented.png "Augmented Images (Flipped and Traslated Images)"
-[image4]: ./img/Distribution.png "Recovery Image"
-[image5]: ./examples/placeholder_small.png "Recovery Image"
-[image6]: ./examples/placeholder_small.png "Normal Image"
-[image7]: ./examples/placeholder_small.png "Flipped Image"
+[image4]: ./img/Distribution.png "Steering Angles Distribution Before Data Generation"
+[image5]: ./img/History.png "Train and Validation Loss"
+[image6]: ./img/Simulation_2.png "Autonomous Driving Test"
+[image7]: ./img/Simulation_3.png "Autonomous Driving Test"
 
 ## Rubric Points
 ###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/432/view) individually and describe how I addressed each point in my implementation.  
@@ -119,4 +119,9 @@ After the collection process, I had X number of data points. I then preprocessed
 
 I finally randomly shuffled the data set and put Y% of the data into a validation set. 
 
+![alt text][image5]
+
 I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was Z as evidenced by ... I used an adam optimizer so that manually training the learning rate wasn't necessary.
+
+![alt text][image6]
+![alt text][image7]
