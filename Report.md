@@ -83,6 +83,26 @@ Training data was chosen from the dataset provided by Udacity. Since, the simula
 
 ###Solution Design Approach
 
+Due the limited amount of images from de Udacity's dataset, i choose use left and right camera images to simulate the effect of car recovering from the sides. I add and substrac a small normalized angle of 0.1 to the left camera and right camera respectively (model.py lines 152-162). 
+
+```sh
+#Parser - Add (0.1 |-0.1) to (left | right) steering angles  
+for line in lines:
+    blocks = line.split(',')
+    # Center image
+    images.append(blocks[0])
+    angles.append(float(blocks[3]))
+    # Left image
+    images.append(blocks[1][1:])  
+    angles.append(float(blocks[3])+0.1)
+    # Right image
+    images.append(blocks[2][1:])  
+    angles.append(float(blocks[3])-0.1)
+```
+![alt text][image2]
+
+![alt text][image3]
+
 The overall strategy for deriving a model architecture is a modification of the model proposed by Mariusz Bojarski et al. from the NVIDIA paper provided by Udacity. Because, of memory issues involved training large amounts of data, the images are opened and preprocessed on the fly using a Generator as follows: First, the images are opened and then converted from BGR to YUV color spaces, then were cropped in order to remove the horizon and the car's bonnet to finally resize the images to 40 rows and 80 columns. Moreover, for training set, fake images are generated using a combination of Vertical Flip, Horizontal Traslation and Random Brightness preprocessing, only resizing is applied to validation dataset (model.py lines 41-115).
 
 ```sh
@@ -164,22 +184,6 @@ def batch_generator(data,angles,mode,batch_size = 32):
         batch_images, batch_angles = shuffle(batch_images, batch_angles)
         yield batch_images, batch_angles
 ```
-Due the limited amount of images from de Udacity's dataset, i choose use left and right camera images to simulate the effect of car recovering from the sides. I add and substrac a small normalized angle of 0.1 to the left camera and right camera respectively (model.py lines 152-162). 
-
-```sh
-#Parser - Add (0.1 |-0.1) to (left | right) steering angles  
-for line in lines:
-    blocks = line.split(',')
-    # Center image
-    images.append(blocks[0])
-    angles.append(float(blocks[3]))
-    # Left image
-    images.append(blocks[1][1:])  
-    angles.append(float(blocks[3])+0.1)
-    # Right image
-    images.append(blocks[2][1:])  
-    angles.append(float(blocks[3])-0.1)
-```
 
 Also, i split my image and steering angle datasets into training and validation sets. I found that my model always has low mean squared error on the training and validation set. Curiously, the validation loss always is below the training loss, i guess that is for the Dropout layers that no have inference on the validation set (model.py lines 168-169).
 
@@ -204,13 +208,11 @@ The final step was to run the simulator to see how well the car was driving arou
 At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
 
 
-![alt text][image2]
 
 Then I repeated this process on track two in order to get more data points.
 
 To augment the data sat, I also flipped images and angles thinking that this would ... For example, here is an image that has then been flipped:
 
-![alt text][image3]
 
 
 Etc ....
