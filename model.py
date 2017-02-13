@@ -33,7 +33,7 @@ img_col = 320
 channels = 3
 b_size = 32 
 n_epochs = 3
-n_train_samples = b_size*2600 
+n_train_samples = b_size*750 
 n_val_samples = int(n_train_samples*0.2/0.8)
 
 #Data augmentation functions
