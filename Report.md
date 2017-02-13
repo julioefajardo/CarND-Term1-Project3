@@ -35,21 +35,45 @@ Since, the new beta simulator does not run in my virtual machine, i used the def
 ```sh
 python drive.py model.json
 ```
-The model.py file contains the code for training and saving the convolution neural network. The file shows the pipeline I used for training and validating the model, and it contains comments to explain how the code works.
+The model.py file contains the code for training and saving the convolution neural network. The file shows the pipeline I used for training and validating the model, and it contains comments to explain how the code works. Since, you have been noted the simulator might perform differently based on the hardware, i provided a video below.
 
 ###Model Architecture
 
-My model consists of a convolution neural network, with 7 convolutional layers, max-pooling and 3 fully conected layers. The size of the kernels varies according to the convolution layer, with 5x5, 3x3 and 1x1 filter sizes and depths between 32 and 128 (model.py lines 118-146). 
+My model consists of a convolution neural network, with 7 convolutional layers, max-pooling and 3 fully conected layers. The size of the kernels varies according to the convolution layer, with 5x5, 3x3 and 1x1 filter sizes and depths between 32 and 128 (model.py lines 118-146). The first layer (Keras Lambda) was used to normalize the data between -0.5 to 0.5, the second layer is composed of 3 filters of size 1X1, in order to let the system choose the best color space of the images.  This is followed by 2 convolutional blocks each composed of 32 filters of size 5X5, followed by a Max-Pooling layer with a (2,2) stride. Then, is followed by another 2 convolutional blocks each composed of 64 filters of size 3X3, followed by a Max-Pooling layer with a (2,2) stride. Then, is followed by another 2 convolutional blocks each composed of 128 filters of size 3X3. These convolution layers are followed by 3 fully connected layers with 128, 64 and 16 sizes respectively. I choose 'elu' activation for each layer, in order to get smoother steering angles in the output. Also, each layer was initialiazed with method proposed by X. Glorot (http://jmlr.org/proceedings/papers/v9/glorot10a/glorot10a.pdf) with the aim of get faster convergence. Moreover, the model contains Dropout layers and L2 Normalization in order to reduce overfitting.
 
+```sh
+def regression_model():
+    model = Sequential()
+    model.add(Lambda(lambda x: x/127.5 - 1.,input_shape=(int(img_row/4.0),int(img_col/4.0), channels), output_shape=(int(img_row/4.0),int(img_col/4.0), channels)))
+    model.add(Convolution2D(1,1,1, border_mode = 'same',init ='glorot_uniform',name='conv1'))
+    model.add(Convolution2D(32, 5, 5, border_mode='valid',activation='elu',init='glorot_uniform',W_regularizer=l2(0.),name='conv2'))
+    model.add(Convolution2D(32, 5, 5, border_mode='valid',activation='elu',init='glorot_uniform',W_regularizer=l2(0.),name='conv3'))
+    model.add(MaxPooling2D((2, 2),strides=(2, 2)))
+    model.add(Dropout(0.5))
+    model.add(Convolution2D(64, 3, 3, border_mode='valid',activation='elu',init='glorot_uniform',W_regularizer=l2(0.),name='conv4'))
+    model.add(Convolution2D(64, 3, 3, border_mode='valid',activation='elu',init='glorot_uniform',W_regularizer=l2(0.),name='conv5'))
+    model.add(MaxPooling2D((2, 2),strides=(2, 2)))
+    model.add(Dropout(0.5))
+    model.add(Convolution2D(128, 3, 3, border_mode='valid',activation='elu',init='glorot_uniform',W_regularizer=l2(0.),name='conv6'))
+    model.add(Convolution2D(128, 3, 3, border_mode='valid',activation='elu',init='glorot_uniform',W_regularizer=l2(0.),name='conv7'))
+    model.add(Dropout(0.5))
+    model.add(Flatten())
+    model.add(Dense(128, init='glorot_uniform', W_regularizer=l2(0.)))
+    model.add(Activation('elu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(64, init='glorot_uniform', W_regularizer=l2(0.)))
+    model.add(Activation('elu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(16, init='glorot_uniform', W_regularizer=l2(0.)))
+    model.add(Activation('elu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(1))
+    #adaptive optimizer -> ADAM with mean squared error
+    model.compile(optimizer='adam', loss='mse')
+    return model
+```
 Here is a visualization of the architecture.
 ![alt text][image1]
-
-
-The model includes ELU layers to introduce nonlinearity (code line 20), and the data is normalized in the model using a Keras lambda layer (code line 18). 
-
-####2. Attempts to reduce overfitting in the model
-
-The model contains dropout layers in order to reduce overfitting (model.py lines 21). 
 
 The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 10-16). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
 
