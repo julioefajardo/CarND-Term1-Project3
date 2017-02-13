@@ -81,7 +81,7 @@ The model was trained and validated on different data sets to ensure that the mo
 
 Training data was chosen from the dataset provided by Udacity. Since, the simulator was a poor performance in my virtual machine, drive around the track was a nightmare using the keyboard (i am not a gamer, so i do not have joystikc), so not useful data was collected from that attempts.
 
-####Solution Design Approach
+###Solution Design Approach
 
 The overall strategy for deriving a model architecture was to ...
 
