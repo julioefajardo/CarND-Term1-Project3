@@ -103,6 +103,7 @@ for line in lines:
     images.append(blocks[2][1:])  
     angles.append(float(blocks[3])-0.1)
 ```
+Dataset visualization before preprocessing
 ![alt text][image2]
 
 ![alt text][image4]
@@ -189,4 +190,32 @@ def brightness(image,angle):
          yield batch_images, batch_angles
  ```
  
+ Dataset visualization after preprocessing
  ![alt text][image3]
+
+Also, i randomly shuffled and split my image dataset into training and validation sets. I found that my model always has low mean squared error on the training and validation set. Curiously, the validation loss always is below the training loss, i guess that is for the Dropout layers that no have inference on the validation set (model.py lines 168-169).
+
+ ```sh
+ b_size = 32 
+ n_train_samples = b_size*750 
+ n_val_samples = int(n_train_samples*0.2/0.8)
+ 
+ X_data, y_data = shuffle(X_data, y_data)
+ X_validation, y_validation = shuffle(X_validation, y_validation)
+ history = model.fit_generator(batch_generator(X_data, y_data, 0, b_size),
+                               n_train_samples,
+                               n_epochs,
+                               validation_data=batch_generator(X_validation, y_validation, 1, b_size),
+                               nb_val_samples=n_val_samples)
+ ```
+ 
+ ![alt text][image5]
+ 
+The final step was to run the simulator to see how well the car was driving around track one. There were a few spots where the vehicle almost fell off the track, so i decided to reduced the throttle when the car is turning on the curves. At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
+
+The ideal number of epochs was 5 as evidenced by the performance on the road and because of the training and validation losses does not reflects overfitting. I used an adam optimizer so that manually training the learning rate wasn't necessary. 
+
+Finally, i did not like that the performance of the autonomous driving is affected by the architecture of the computer were the training and the simulator were running. It was very hard find an architecture that finally performs almost well on the track, taking into account that the simmulator has a poor performance in my virtual machine and taking into account that the model was trained on aws instance, the perfomance was better training in my virtual machine, instead of aws instance that trains muchs faster, so the try and error process was very painful using my virtual machine. Moreover, it was very hard to find a combination that performs well, because it is very different to train the feature extractor than to train the regressor that infers the steering angles. It was wonderful if we were able to use more engineering (like images with the lane lines founded in project 1) to train the model, i'm pretty sure that will be work perfectly.
+
+![alt text][image6]
+![alt text][image7]
