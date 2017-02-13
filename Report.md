@@ -22,7 +22,6 @@ The goals / steps of this project are the following:
 [image7]: ./img/Simulation_3.png "Autonomous Driving Test"
 
 ## Rubric Points
----
 ###Files Submitted & Code Quality
 
 ####1. Submission includes all required files and can be used to run the simulator in autonomous mode
