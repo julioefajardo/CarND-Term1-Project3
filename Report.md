@@ -83,9 +83,102 @@ Training data was chosen from the dataset provided by Udacity. Since, the simula
 
 ###Solution Design Approach
 
-The overall strategy for deriving a model architecture is a modification of the model proposed by Mariusz Bojarski et al. from the NVIDIA paper provided by Udacity. The images was converted from BGR to YUV color spaces, then were cropped in order to remove the horizon and the car's bonnet to finally resize the images to 40 rows and 80 columns. Due the limited amount of images from de Udacity's dataset, i choose use left and right camera images to simulate the effect of car recovering from the sides. I add and substrac a small normalized angle of 0.1 to the left camera and right camera respectively.
+The overall strategy for deriving a model architecture is a modification of the model proposed by Mariusz Bojarski et al. from the NVIDIA paper provided by Udacity. Because, of memory issues involved training large amounts of data, the images are opened and preprocessed on the fly using a Generator as follows: First, the images are opened and then converted from BGR to YUV color spaces, then were cropped in order to remove the horizon and the car's bonnet to finally resize the images to 40 rows and 80 columns. Moreover, for training set, fake images are generated using a combination of Vertical Flip, Horizontal Traslation and Random Brightness preprocessing, only resizing is applied to validation dataset (model.py lines 41-115).
 
-I split my image and steering angle datasets into a training and validation sets. I found that my model always has low mean squared error on the training and validation set. Curiously, the validation loss always is below the training loss, i guess that is for the Dropout layers that no have inference on the validation set.
+```sh
+#Data augmentation functions
+#ImageFlip
+def vertical_flip(image,angle):
+    image = cv2.flip(image,1)
+    angle = -1.0*angle
+    return image, angle
+
+#Horizontal random traslation
+def traslation(image,angle):
+    xtraslation = 100*np.random.uniform()-100/2
+    angle_traslation = angle + xtraslation*.0016
+    ytraslation = 40*np.random.uniform()-40/2
+    Traslation_Matrix = np.float32([[1,0,xtraslation],[0,1,ytraslation]])
+    image_traslation = cv2.warpAffine(image,Traslation_Matrix,(image.shape[1],image.shape[0]))
+    return image_traslation,angle_traslation
+
+#Random brightness generator
+def brightness(image,angle):
+    image = cv2.cvtColor(image,cv2.COLOR_YUV2BGR)
+    image = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
+    random_bright = .25+np.random.uniform()
+    image[:,:,2] = image[:,:,2]*random_bright
+    image = cv2.cvtColor(image,cv2.COLOR_HSV2BGR)
+    image = cv2.cvtColor(image,cv2.COLOR_BGR2YUV)
+    angle = angle*1.0
+    return image,angle
+
+#Image Random Generator (image.shape => (40,80,3)) 
+def generator(image,angle):
+    #Randomly choose the type of preprocessing for each image
+    step = np.random.randint(6)
+    if(step == 0):
+        image, angle = vertical_flip(image,angle)
+    elif(step == 1):
+        image, angle = traslation(image,angle)
+    elif(step == 2):
+        image, angle = vertical_flip(image,angle)
+        image, angle = traslation(image,angle)
+    elif(step == 3):
+        image, angle = brightness(image,angle)
+        image, angle = vertical_flip(image,angle)
+        image, angle = traslation(image,angle)
+    elif(step == 4):
+        image, angle = brightness(image,angle)
+        image, angle = traslation(image,angle)
+    else:
+        image, angle = brightness(image,angle)
+    resize = cv2.resize(image,(int(img_col/4.0),int(img_row/4.0)),interpolation=cv2.INTER_AREA) 
+    return resize, angle
+
+#Batch generator from CSV File - n batches of 32 images with shape = (40,80,3)
+def batch_generator(data,angles,mode,batch_size = 32):
+    batch_images = np.ndarray(shape=(batch_size,int(img_row/4.0),int(img_col/4.0),channels), dtype=np.uint8)
+    batch_angles = np.zeros(batch_size,)
+    while 1:
+        for i in range(batch_size):
+            index = random.randint(0, len(data)-1)
+            #load random image from CSV file
+            image = cv2.imread(data[index],cv2.IMREAD_COLOR)
+            angle = angles[index]
+            #change space color to YUV
+            image = cv2.cvtColor(image,cv2.COLOR_BGR2YUV)
+            #image cropping
+            image = image[math.floor(image.shape[0]/4):image.shape[0]-25, 0:image.shape[1]]
+            #mode 0 is for training images generator - mode 1 is for validation images generator
+            if(mode==0):
+                image, angle = generator(image,angle)
+                batch_images[i] = image
+                batch_angles[i] = angle
+            if(mode==1):
+                batch_images[i] = cv2.resize(image,(int(img_col/4.0),int(img_row/4.0)),interpolation=cv2.INTER_AREA)
+                batch_angles[i] = angle
+            image, angle = generator(image,angle)
+            batch_images[i] = image
+            batch_angles[i] = angle
+        batch_images, batch_angles = shuffle(batch_images, batch_angles)
+        yield batch_images, batch_angles
+```
+Due the limited amount of images from de Udacity's dataset, i choose use left and right camera images to simulate the effect of car recovering from the sides. I add and substrac a small normalized angle of 0.1 to the left camera and right camera respectively (model.py lines 152-162). Also, i split my image and steering angle datasets into training and validation sets. I found that my model always has low mean squared error on the training and validation set. Curiously, the validation loss always is below the training loss, i guess that is for the Dropout layers that no have inference on the validation set.
+
+```sh
+b_size = 32 
+n_train_samples = b_size*750 
+n_val_samples = int(n_train_samples*0.2/0.8)
+
+X_data, y_data = shuffle(X_data, y_data)
+X_validation, y_validation = shuffle(X_validation, y_validation)
+history = model.fit_generator(batch_generator(X_data, y_data, 0, b_size),
+                              n_train_samples,
+                              n_epochs,
+                              validation_data=batch_generator(X_validation, y_validation, 1, b_size),
+                              nb_val_samples=n_val_samples)
+```
 
 Then I ... 
 
@@ -93,11 +186,6 @@ The final step was to run the simulator to see how well the car was driving arou
 
 At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
 
-####3. Creation of the Training Set & Training Process
-
-To capture good driving behavior, I first recorded two laps on track one using center lane driving. Here is an example image of center lane driving:
-
-I then recorded the vehicle recovering from the left side and right sides of the road back to center so that the vehicle would learn to .... These images show what a recovery looks like starting from ... :
 
 ![alt text][image2]
 
