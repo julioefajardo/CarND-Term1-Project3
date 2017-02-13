@@ -103,7 +103,7 @@ for line in lines:
 
 ![alt text][image4]
 
-The overall strategy for deriving a model architecture is a modification of the model proposed by Mariusz Bojarski et al. from the NVIDIA paper provided by Udacity. Because, of memory issues involved training large amounts of data, the images are opened and preprocessed on the fly using a Generator as follows: First, the images are opened and then converted from BGR to YUV color spaces, then were cropped in order to remove the horizon and the car's bonnet to finally resize the images to 40 rows and 80 columns. Moreover, for training set, fake images are generated using a combination of Vertical Flip, Horizontal Traslation and Random Brightness preprocessing, only resizing is applied to validation dataset (model.py lines 41-115).
+The overall strategy for deriving a model architecture is a modification of the model proposed by Mariusz Bojarski et al. from the NVIDIA paper provided by Udacity and this Blog -> https://chatbotslife.com/using-augmentation-to-mimic-human-driving-496b569760a9#.t2a9261rj. Because, of memory issues involved training large amounts of data, the images are opened and preprocessed on the fly using a Generator as follows: First, the images are opened and then converted from BGR to YUV color spaces, then were cropped in order to remove the horizon and the car's bonnet to finally resize the images to 40 rows and 80 columns. Moreover, for training set, the batches are generated using fake images randomly choosed using a random combination of Vertical Flip, Horizontal Traslation and Random Brightness preprocessing, only resizing is applied to validation dataset (model.py lines 41-115).
 
 ```sh
 #Data augmentation functions
@@ -187,7 +187,7 @@ def batch_generator(data,angles,mode,batch_size = 32):
 
 ![alt text][image3]
 
-Also, i split my image and steering angle datasets into training and validation sets. I found that my model always has low mean squared error on the training and validation set. Curiously, the validation loss always is below the training loss, i guess that is for the Dropout layers that no have inference on the validation set (model.py lines 168-169).
+Also, i randomly shuffled and split my image dataset into training and validation sets. I found that my model always has low mean squared error on the training and validation set. Curiously, the validation loss always is below the training loss, i guess that is for the Dropout layers that no have inference on the validation set (model.py lines 168-169).
 
 ```sh
 b_size = 32 
@@ -203,30 +203,13 @@ history = model.fit_generator(batch_generator(X_data, y_data, 0, b_size),
                               nb_val_samples=n_val_samples)
 ```
 
-Then I ... 
+![alt text][image5]
 
 The final step was to run the simulator to see how well the car was driving around track one. There were a few spots where the vehicle fell off the track... to improve the driving behavior in these cases, I ....
 
 At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
 
-
-
-Then I repeated this process on track two in order to get more data points.
-
-To augment the data sat, I also flipped images and angles thinking that this would ... For example, here is an image that has then been flipped:
-
-
-
-Etc ....
-
-After the collection process, I had X number of data points. I then preprocessed this data by ...
-
-
-I finally randomly shuffled the data set and put Y% of the data into a validation set. 
-
-![alt text][image5]
-
-I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was Z as evidenced by ... I used an adam optimizer so that manually training the learning rate wasn't necessary.
+I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was 5 as evidenced by ... I used an adam optimizer so that manually training the learning rate wasn't necessary.
 
 ![alt text][image6]
 ![alt text][image7]
