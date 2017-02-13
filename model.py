@@ -33,8 +33,8 @@ img_col = 320
 channels = 3
 b_size = 32 
 n_epochs = 3
-n_train_samples = b_size*3500 
-n_val_samples = b_size*700
+n_train_samples = b_size*2600 
+n_val_samples = int(n_train_samples*0.2/0.8)
 
 #Data augmentation functions
 #ImageFlip
@@ -52,11 +52,21 @@ def traslation(image,angle):
     image_traslation = cv2.warpAffine(image,Traslation_Matrix,(image.shape[1],image.shape[0]))
     return image_traslation,angle_traslation
 
-#Image Random Generator (image.shape = (40,80,3)) 
+#Random brightness generator
+def brightness(image,angle):
+    image = cv2.cvtColor(image,cv2.COLOR_YUV2BGR)
+    image = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
+    random_bright = .25+np.random.uniform()
+    image[:,:,2] = image[:,:,2]*random_bright
+    image = cv2.cvtColor(image,cv2.COLOR_HSV2BGR)
+    image = cv2.cvtColor(image,cv2.COLOR_BGR2YUV)
+    angle = angle*1.0
+    return image,angle
+
+#Image Random Generator (image.shape => (40,80,3)) 
 def generator(image,angle):
-    resize = np.ndarray(shape=(int(img_row/4.0),int(img_col/4.0),channels), dtype=np.uint8)
-    #random step to generate augmented images
-    step = np.random.randint(4)				
+    #Randomly choose the type of preprocessing for each image
+    step = np.random.randint(6)
     if(step == 0):
         image, angle = vertical_flip(image,angle)
     elif(step == 1):
@@ -64,14 +74,20 @@ def generator(image,angle):
     elif(step == 2):
         image, angle = vertical_flip(image,angle)
         image, angle = traslation(image,angle)
+    elif(step == 3):
+        image, angle = brightness(image,angle)
+        image, angle = vertical_flip(image,angle)
+        image, angle = traslation(image,angle)
+    elif(step == 4):
+        image, angle = brightness(image,angle)
+        image, angle = traslation(image,angle)
     else:
-        angle = angle*1.0
-    #image resizing
+        image, angle = brightness(image,angle)
     resize = cv2.resize(image,(int(img_col/4.0),int(img_row/4.0)),interpolation=cv2.INTER_AREA) 
     return resize, angle
 
-#Batch generator from CSV File - n batches of images with shape = (40,80,3)
-def batch_generator(data,angles,batch_size = 32):
+#Batch generator from CSV File - n batches of 32 images with shape = (40,80,3)
+def batch_generator(data,angles,mode,batch_size = 32):
     batch_images = np.ndarray(shape=(batch_size,int(img_row/4.0),int(img_col/4.0),channels), dtype=np.uint8)
     batch_angles = np.zeros(batch_size,)
     while 1:
@@ -80,9 +96,18 @@ def batch_generator(data,angles,batch_size = 32):
             #load random image from CSV file
             image = cv2.imread(data[index],cv2.IMREAD_COLOR)
             angle = angles[index]
-            image = cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
+            #change space color to YUV
+            image = cv2.cvtColor(image,cv2.COLOR_BGR2YUV)
             #image cropping
-            image = image[math.floor(image.shape[0]/5):image.shape[0]-25, 0:image.shape[1]]
+            image = image[math.floor(image.shape[0]/4):image.shape[0]-25, 0:image.shape[1]]
+            #mode 0 is for training images generator - mode 1 is for validation images generator
+            if(mode==0):
+                image, angle = generator(image,angle)
+                batch_images[i] = image
+                batch_angles[i] = angle
+            if(mode==1):
+                batch_images[i] = cv2.resize(image,(int(img_col/4.0),int(img_row/4.0)),interpolation=cv2.INTER_AREA)
+                batch_angles[i] = angle
             image, angle = generator(image,angle)
             batch_images[i] = image
             batch_angles[i] = angle
@@ -94,25 +119,29 @@ def regression_model():
     model = Sequential()
     model.add(Lambda(lambda x: x/127.5 - 1.,input_shape=(int(img_row/4.0),int(img_col/4.0), channels), output_shape=(int(img_row/4.0),int(img_col/4.0), channels)))
     model.add(Convolution2D(1,1,1, border_mode = 'same',init ='glorot_uniform',name='conv1'))
-    model.add(Convolution2D(32, 5, 5, border_mode='valid',activation='elu',init='glorot_uniform',name='conv2'))
-    model.add(MaxPooling2D((2, 2),strides=(2, 2)))
-    model.add(Convolution2D(64, 3, 3, border_mode='valid',activation='elu',init='glorot_uniform',name='conv3'))
+    model.add(Convolution2D(32, 5, 5, border_mode='valid',activation='elu',init='glorot_uniform',W_regularizer=l2(0.),name='conv2'))
+    model.add(Convolution2D(32, 5, 5, border_mode='valid',activation='elu',init='glorot_uniform',W_regularizer=l2(0.),name='conv3'))
     model.add(MaxPooling2D((2, 2),strides=(2, 2)))
     model.add(Dropout(0.5))
-    model.add(Convolution2D(128, 3, 3, border_mode='valid',activation='elu',init='glorot_uniform',name='conv4'))
+    model.add(Convolution2D(64, 3, 3, border_mode='valid',activation='elu',init='glorot_uniform',W_regularizer=l2(0.),name='conv4'))
+    model.add(Convolution2D(64, 3, 3, border_mode='valid',activation='elu',init='glorot_uniform',W_regularizer=l2(0.),name='conv5'))
+    model.add(MaxPooling2D((2, 2),strides=(2, 2)))
+    model.add(Dropout(0.5))
+    model.add(Convolution2D(128, 3, 3, border_mode='valid',activation='elu',init='glorot_uniform',W_regularizer=l2(0.),name='conv6'))
+    model.add(Convolution2D(128, 3, 3, border_mode='valid',activation='elu',init='glorot_uniform',W_regularizer=l2(0.),name='conv7'))
     model.add(Dropout(0.5))
     model.add(Flatten())
-    model.add(Dense(512, init='glorot_uniform'))
+    model.add(Dense(128, init='glorot_uniform', W_regularizer=l2(0.)))
     model.add(Activation('elu'))
     model.add(Dropout(0.5))
-    model.add(Dense(128, init='glorot_uniform'))
+    model.add(Dense(64, init='glorot_uniform', W_regularizer=l2(0.)))
     model.add(Activation('elu'))
     model.add(Dropout(0.5))
-    model.add(Dense(32, init='glorot_uniform'))
+    model.add(Dense(16, init='glorot_uniform', W_regularizer=l2(0.)))
     model.add(Activation('elu'))
     model.add(Dropout(0.5))
     model.add(Dense(1))
-    
+    #adaptive optimizer -> ADAM with mean squared error
     model.compile(optimizer='adam', loss='mse')
     return model
 
@@ -147,20 +176,32 @@ plot(model, to_file='model.png', show_shapes=True, show_layer_names=False)
 #Training and validation
 X_data, y_data = shuffle(X_data, y_data)
 X_validation, y_validation = shuffle(X_validation, y_validation)
-history = model.fit_generator(batch_generator(X_data, y_data, b_size),
+history = model.fit_generator(batch_generator(X_data, y_data, 0, b_size),
                               n_train_samples,
                               n_epochs,
-                              validation_data=batch_generator(X_validation, y_validation, b_size),
+                              validation_data=batch_generator(X_validation, y_validation, 1, b_size),
                               nb_val_samples=n_val_samples)
 
-#Save the model
+#convert model to json
 json_string = model.to_json()
+
+#remove old versions
+try:
+    os.remove('model.json')
+    os.remove('model.h5')
+except OSError:
+    pass
+
+#save the model
 with open('model.json', 'w') as f:
     f.write(json_string)
 model.save_weights('model.h5')
 
-#Save train and validation losses
+#save history (training and validation loss)
 with open('history.p', mode='wb') as f:
     data = pickle.dump(history.history,f)
+
+gc.collect()
+K.clear_session()
 
 print('Done.')
