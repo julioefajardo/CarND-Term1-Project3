@@ -104,9 +104,7 @@ for line in lines:
     angles.append(float(blocks[3])-0.1)
 ```
 ![alt text][image2]
-```sh
-Dataset visualization before preprocessing
-```
+
 ![alt text][image4]
 
 The overall strategy for deriving a model architecture is a modification of the model proposed by Mariusz Bojarski et al. from the NVIDIA paper provided by Udacity and this Blog -> https://chatbotslife.com/using-augmentation-to-mimic-human-driving-496b569760a9#.t2a9261rj. Because, of memory issues involved training large amounts of data, the images are opened and preprocessed on the fly using a Generator as follows: First, the images are opened and then converted from BGR to YUV color spaces, then were cropped in order to remove the horizon and the car's bonnet to finally resize the images to 40 rows and 80 columns. Moreover, for training set, the batches are generated using fake images randomly choosed using a random combination of Vertical Flip, Horizontal Traslation and Random Brightness preprocessing, only resizing is applied to validation dataset (model.py lines 41-115). This preprocessing was implemented in order to generate fake data with the aim to balance the dataset provided.
@@ -192,9 +190,6 @@ def brightness(image,angle):
  ```
  
  ![alt text][image3]
- ```sh
- Dataset visualization after preprocessing
-```
 
 Also, i randomly shuffled and split my image dataset into training and validation sets. I found that my model always has low mean squared error on the training and validation set. Curiously, the validation loss always is below the training loss, i guess that is for the Dropout layers that no have inference on the validation set (model.py lines 168-169).
 
@@ -220,8 +215,6 @@ The ideal number of epochs was 5 as evidenced by the performance on the road and
 
 Finally, i did not like that the performance of the autonomous driving is affected by the architecture of the computer were the training and the simulator were running. It was very hard find an architecture that finally performs almost well on the track, taking into account that the simmulator has a poor performance in my virtual machine and taking into account that the model was trained on aws instance, the perfomance was better training in my virtual machine, instead of aws instance that trains muchs faster, so the try and error process was very painful using my virtual machine. Moreover, it was very hard to find a combination that performs well, because it is very different to train the feature extractor than to train the regressor that infers the steering angles. It was wonderful if we were able to use more engineering (like images with the lane lines founded in project 1) to train the model, i'm pretty sure that will be work perfectly.
 
+####Autonomous Driving Test
 ![alt text][image6]
 ![alt text][image7]
-```sh
-Autonomous drive test.
-```
