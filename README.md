@@ -14,8 +14,8 @@ The goals / steps of this project are the following:
 [//]: # (Image References)
 
 [image1]: ./img/model.png "Model Visualization"
-[image2]: ./img/Dataset.png "Udacity Dataset"
-[image3]: ./img/Augmented.png "Augmented Images (Flipped and Traslated Images)"
+[image2]: ./img/Dataset.png "Udacity Dataset before preprocessing"
+[image3]: ./img/Augmented.png "Augmented Dastaset Visualization (Flipped and Traslated Images)"
 [image4]: ./img/Distribution.png "Steering Angles Distribution Before Data Generation"
 [image5]: ./img/History.png "Train and Validation Loss"
 [image6]: ./img/Simulation_2.png "Autonomous Driving Test"
@@ -103,8 +103,8 @@ for line in lines:
     images.append(blocks[2][1:])  
     angles.append(float(blocks[3])-0.1)
 ```
-Dataset visualization before preprocessing
 ![alt text][image2]
+Dataset visualization before preprocessing
 
 ![alt text][image4]
 
@@ -190,8 +190,8 @@ def brightness(image,angle):
          yield batch_images, batch_angles
  ```
  
- Dataset visualization after preprocessing
  ![alt text][image3]
+ Dataset visualization after preprocessing
 
 Also, i randomly shuffled and split my image dataset into training and validation sets. I found that my model always has low mean squared error on the training and validation set. Curiously, the validation loss always is below the training loss, i guess that is for the Dropout layers that no have inference on the validation set (model.py lines 168-169).
 
@@ -219,3 +219,4 @@ Finally, i did not like that the performance of the autonomous driving is affect
 
 ![alt text][image6]
 ![alt text][image7]
+Autonomous drive test.
