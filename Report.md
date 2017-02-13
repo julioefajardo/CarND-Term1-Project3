@@ -31,7 +31,7 @@ My project includes the following files:
 * model.json needed for driving the car in autonomous mode 
 * Report.md summarizing the results
 
-Since, the new simulator does not run in my virtual machine, i used the default simulator to test my model. Using the Udacity provided simulator (default) and my drive.py file, the car can be driven autonomously around the track by executing. 
+Since, the new beta simulator does not run in my virtual machine, i used the default simulator to test my model. Using the Udacity provided simulator (default) and my drive.py file, the car can be driven autonomously around the track by executing. 
 ```sh
 python drive.py model.json
 ```
