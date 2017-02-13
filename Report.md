@@ -72,7 +72,8 @@ def regression_model():
     model.compile(optimizer='adam', loss='mse')
     return model
 ```
-Here is a visualization of the architecture.
+Here is a visualization of the architecture:
+
 ![alt text][image1]
 
 The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 10-16). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
