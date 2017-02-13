@@ -101,7 +101,7 @@ for line in lines:
 ```
 ![alt text][image2]
 
-![alt text][image3]
+![alt text][image4]
 
 The overall strategy for deriving a model architecture is a modification of the model proposed by Mariusz Bojarski et al. from the NVIDIA paper provided by Udacity. Because, of memory issues involved training large amounts of data, the images are opened and preprocessed on the fly using a Generator as follows: First, the images are opened and then converted from BGR to YUV color spaces, then were cropped in order to remove the horizon and the car's bonnet to finally resize the images to 40 rows and 80 columns. Moreover, for training set, fake images are generated using a combination of Vertical Flip, Horizontal Traslation and Random Brightness preprocessing, only resizing is applied to validation dataset (model.py lines 41-115).
 
@@ -185,6 +185,8 @@ def batch_generator(data,angles,mode,batch_size = 32):
         yield batch_images, batch_angles
 ```
 
+![alt text][image3]
+
 Also, i split my image and steering angle datasets into training and validation sets. I found that my model always has low mean squared error on the training and validation set. Curiously, the validation loss always is below the training loss, i guess that is for the Dropout layers that no have inference on the validation set (model.py lines 168-169).
 
 ```sh
@@ -219,7 +221,6 @@ Etc ....
 
 After the collection process, I had X number of data points. I then preprocessed this data by ...
 
-![alt text][image4]
 
 I finally randomly shuffled the data set and put Y% of the data into a validation set. 
 
