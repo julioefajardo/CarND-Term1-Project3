@@ -39,7 +39,8 @@ The model.py file contains the code for training and saving the convolution neur
 
 ###Model Architecture
 
-My model consists of a convolution neural network, with 7 convolutional layers, max-pooling and 3 fully conected layers. The size of the kernels varies according to the convolution layer, with 5x5, 3x3 and 1x1 filter sizes and depths between 32 and 128 (model.py lines 118-146). The first layer (Keras Lambda) was used to normalize the data between -0.5 to 0.5, the second layer is composed of 3 filters of size 1X1, in order to let the system choose the best color space of the images.  This is followed by 2 convolutional blocks each composed of 32 filters of size 5X5, followed by a Max-Pooling layer with a (2,2) stride. Then, is followed by another 2 convolutional blocks each composed of 64 filters of size 3X3, followed by a Max-Pooling layer with a (2,2) stride. Then, is followed by another 2 convolutional blocks each composed of 128 filters of size 3X3. These convolution layers are followed by 3 fully connected layers with 128, 64 and 16 sizes respectively. I choose 'elu' activation for each layer, in order to get smoother steering angles in the output. Also, each layer was initialiazed with method proposed by X. Glorot in http://jmlr.org/proceedings/papers/v9/glorot10a/glorot10a.pdf. This, with the aim of get faster convergence. Moreover, the model contains Dropout layers and L2 Weight Regularizaton in order to reduce overfitting.
+My model consists of a convolution neural network, with 7 convolutional layers, max-pooling and 3 fully conected layers. The size of the kernels varies according to the convolution layer, with 5x5, 3x3 and 1x1 filter sizes and depths between 32 and 128 (model.py lines 118-146). The first layer (Keras Lambda) was used to normalize the data between -0.5 to 0.5, the second layer is composed of 3 filters of size 1X1, in order to let the system choose the best color space of the images.  This is followed by 2 convolutional blocks each composed of 32 filters of size 5X5, followed by a Max-Pooling layer with a (2,2) stride. Then, is followed by another 2 convolutional blocks each composed of 64 filters of size 3X3, followed by a Max-Pooling layer with a (2,2) stride. Then, is followed by another 2 convolutional blocks each composed of 128 filters of size 3X3. These convolution layers are followed by 3 fully connected layers with 128, 64 and 16 sizes respectively. I choose 'elu' activation for each layer, in order to get smoother steering angles in the output. Also, each layer was initialiazed with method proposed by X. Glorot in http://jmlr.org/proceedings/papers/v9/glorot10a/glorot10a.pdf. This, with the aim of get faster convergence. Moreover, the model contains Dropout layers and L2 Weight Regularizaton in order to reduce overfitting. The model used an adam optimizer, so the learning rate was not tuned manually (model.py line 145).
+
 
 ```sh
 def regression_model():
@@ -76,21 +77,11 @@ Here is a visualization of the architecture:
 
 ![alt text][image1]
 
-The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 10-16). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
+The model was trained and validated on different data sets to ensure that the model was not overfitting (model.py lines 168-169). Also, for training dataset the images were processed on different manners in order to get fake data to avoid overfitting (model.py lines 67-87). For validation dataset the images only were resized, in order to validate the model with real situations taken from the simulator (code line 104-110). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
 
-####3. Model parameter tuning
+Training data was chosen from the dataset provided by Udacity. Since, the simulator was a poor performance in my virtual machine, drive around the track was a nightmare using the keyboard (i am not a gamer, so i do not have joystikc), so not useful data was collected from that attempts.
 
-The model used an adam optimizer, so the learning rate was not tuned manually (model.py line 25).
-
-####4. Appropriate training data
-
-Training data was chosen to keep the vehicle driving on the road. I used a combination of center lane driving, recovering from the left and right sides of the road ... 
-
-For details about how I created the training data, see the next section. 
-
-###Training Strategy
-
-####1. Solution Design Approach
+####Solution Design Approach
 
 The overall strategy for deriving a model architecture was to ...
 
