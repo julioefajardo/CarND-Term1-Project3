@@ -104,8 +104,9 @@ for line in lines:
     angles.append(float(blocks[3])-0.1)
 ```
 ![alt text][image2]
+```sh
 Dataset visualization before preprocessing
-
+```
 ![alt text][image4]
 
 The overall strategy for deriving a model architecture is a modification of the model proposed by Mariusz Bojarski et al. from the NVIDIA paper provided by Udacity and this Blog -> https://chatbotslife.com/using-augmentation-to-mimic-human-driving-496b569760a9#.t2a9261rj. Because, of memory issues involved training large amounts of data, the images are opened and preprocessed on the fly using a Generator as follows: First, the images are opened and then converted from BGR to YUV color spaces, then were cropped in order to remove the horizon and the car's bonnet to finally resize the images to 40 rows and 80 columns. Moreover, for training set, the batches are generated using fake images randomly choosed using a random combination of Vertical Flip, Horizontal Traslation and Random Brightness preprocessing, only resizing is applied to validation dataset (model.py lines 41-115). This preprocessing was implemented in order to generate fake data with the aim to balance the dataset provided.
@@ -191,7 +192,9 @@ def brightness(image,angle):
  ```
  
  ![alt text][image3]
+ ```sh
  Dataset visualization after preprocessing
+```
 
 Also, i randomly shuffled and split my image dataset into training and validation sets. I found that my model always has low mean squared error on the training and validation set. Curiously, the validation loss always is below the training loss, i guess that is for the Dropout layers that no have inference on the validation set (model.py lines 168-169).
 
@@ -219,4 +222,6 @@ Finally, i did not like that the performance of the autonomous driving is affect
 
 ![alt text][image6]
 ![alt text][image7]
+```sh
 Autonomous drive test.
+```
