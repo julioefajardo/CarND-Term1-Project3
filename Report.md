@@ -103,7 +103,7 @@ for line in lines:
 
 ![alt text][image4]
 
-The overall strategy for deriving a model architecture is a modification of the model proposed by Mariusz Bojarski et al. from the NVIDIA paper provided by Udacity and this Blog -> https://chatbotslife.com/using-augmentation-to-mimic-human-driving-496b569760a9#.t2a9261rj. Because, of memory issues involved training large amounts of data, the images are opened and preprocessed on the fly using a Generator as follows: First, the images are opened and then converted from BGR to YUV color spaces, then were cropped in order to remove the horizon and the car's bonnet to finally resize the images to 40 rows and 80 columns. Moreover, for training set, the batches are generated using fake images randomly choosed using a random combination of Vertical Flip, Horizontal Traslation and Random Brightness preprocessing, only resizing is applied to validation dataset (model.py lines 41-115).
+The overall strategy for deriving a model architecture is a modification of the model proposed by Mariusz Bojarski et al. from the NVIDIA paper provided by Udacity and this Blog -> https://chatbotslife.com/using-augmentation-to-mimic-human-driving-496b569760a9#.t2a9261rj. Because, of memory issues involved training large amounts of data, the images are opened and preprocessed on the fly using a Generator as follows: First, the images are opened and then converted from BGR to YUV color spaces, then were cropped in order to remove the horizon and the car's bonnet to finally resize the images to 40 rows and 80 columns. Moreover, for training set, the batches are generated using fake images randomly choosed using a random combination of Vertical Flip, Horizontal Traslation and Random Brightness preprocessing, only resizing is applied to validation dataset (model.py lines 41-115). This preprocessing was implemented in order to generate fake data with the aim to balance the dataset provided.
 
 ```sh
 #Data augmentation functions
@@ -205,11 +205,11 @@ history = model.fit_generator(batch_generator(X_data, y_data, 0, b_size),
 
 ![alt text][image5]
 
-The final step was to run the simulator to see how well the car was driving around track one. There were a few spots where the vehicle fell off the track... to improve the driving behavior in these cases, I ....
+The final step was to run the simulator to see how well the car was driving around track one. There were a few spots where the vehicle almost fell off the track, so i decided to reduced the throttle when the car is turning on the curves. At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
 
-At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
+The ideal number of epochs was 5 as evidenced by the performance on the road and because of the training and validation losses does not reflects overfitting. I used an adam optimizer so that manually training the learning rate wasn't necessary. 
 
-I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was 5 as evidenced by ... I used an adam optimizer so that manually training the learning rate wasn't necessary.
+Finally, i did not like that the performance of the autonomous driving is affected by the architecture of the computer were the training and the simulator were running. It was very hard find an architecture that finally performs almost well on the track, taking into account that the simmulator has a poor performance in my virtual machine and taking into account that the model was trained on aws instance, the perfomance was better training in my virtual machine, instead of aws instance that trains muchs faster, so the try and error process was very painful using my virtual machine. Moreover, it was very hard to find a combination that performs well, because it is very different to train the feature extractor than to train the regressor that infers the angles. It was wonderful if we were able to use more engineering (like images with the lane lines founded in project 1) to train the model, i'm pretty sure that will be work perfectly.
 
 ![alt text][image6]
 ![alt text][image7]
