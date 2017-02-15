@@ -35,11 +35,7 @@ Since, the new beta simulator does not run in my virtual machine, i used the def
 ```sh
 python drive.py model.json
 ```
-The model.py file contains the code for training and saving the convolution neural network. The file shows the pipeline I used for training and validating the model, and it contains comments to explain how the code works. Since, you have been noted the simulator might perform differently based on the hardware, i provided a video below.
-
-http://tiny.cc/painful_video
-
-I'm sorry, but that's how it runs on my virtual machine
+The model.py file contains the code for training and saving the convolution neural network. The file shows the pipeline I used for training and validating the model, and it contains comments to explain how the code works. Since, you have been noted the simulator might perform differently based on the hardware. 
 
 ###Model Architecture
 
