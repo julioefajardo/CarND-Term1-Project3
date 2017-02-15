@@ -79,7 +79,7 @@ Here is a visualization of the architecture:
 
 The model was trained and validated on different data sets to ensure that the model was not overfitting (model.py lines 168-169). Also, for training dataset the images were processed on different manners in order to get fake data to avoid overfitting (model.py lines 67-87). For validation dataset the images only were resized, in order to validate the model with real situations taken from the simulator (model.py 104-110). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
 
-Training data was chosen from the dataset provided by Udacity. Since, the simulator was a poor performance in my virtual machine, drive around the track was a nightmare using the keyboard (i am not a gamer, so i do not have joystick), so not useful data was collected from that attempts.
+Training data was chosen from the dataset provided by Udacity. Since, the simulator was a poor performance in my virtual machine, drive around the track was a nightmare using the keyboard (i am not a gamer, so i do not have a joystick), so not useful data was collected from that attempts.
 
 ###Solution Design Approach
 
