@@ -1,7 +1,7 @@
-#**Project 3 - Behavioral Cloning with Keras** 
+# **Project 3 - Behavioral Cloning with Keras** 
 ---
 
-**Behavrioal Cloning Project**
+** Behavrioal Cloning Project**
 
 The goals / steps of this project are the following:
 * Use the simulator to collect data of good driving behavior
@@ -22,7 +22,7 @@ The goals / steps of this project are the following:
 [image7]: ./img/Simulation_3.png "Autonomous Driving Test"
 
 ## Rubric Points
-###Files Submitted & Code Quality
+### Files Submitted & Code Quality
 
 My project includes the following files:
 * model.py containing the script to create and train the model
@@ -37,7 +37,7 @@ python drive.py model.json
 ```
 The model.py file contains the code for training and saving the convolution neural network. The file shows the pipeline I used for training and validating the model, and it contains comments to explain how the code works. 
 
-###Model Architecture
+### Model Architecture
 
 My model consists of a convolution neural network, with 7 convolutional layers, max-pooling and 3 fully conected layers. The size of the kernels varies according to the convolution layer, with 5x5, 3x3 and 1x1 filter sizes and depths between 32 and 128 (model.py lines 118-146). The first layer (Keras Lambda) was used to normalize the data between -0.5 to 0.5, the second layer is composed of 3 filters of size 1X1, in order to let the system choose the appropiate YUV color space of the images.  This is followed by 2 convolutional blocks each composed of 32 filters of size 5X5, followed by a Max-Pooling layer with a (2,2) stride. Then, is followed by another 2 convolutional blocks each composed of 64 filters of size 3X3, followed by a Max-Pooling layer with a (2,2) stride. Then, is followed by another 2 convolutional blocks each composed of 128 filters of size 3X3. These convolution layers are followed by 3 fully connected layers with 128, 64 and 16 sizes respectively. I choose 'elu' activation for each layer, in order to get smoother steering angles in the output. Also, each layer was initialiazed with method proposed by X. Glorot in http://jmlr.org/proceedings/papers/v9/glorot10a/glorot10a.pdf. This, with the aim of get faster convergence. Moreover, the model contains Dropout layers and L2 Weight Regularizaton in order to reduce overfitting. The model used an adam optimizer, so the learning rate was not tuned manually (model.py line 145).
 
@@ -81,7 +81,7 @@ The model was trained and validated on different data sets to ensure that the mo
 
 Training data was chosen from the dataset provided by Udacity. Since, the simulator was a poor performance in my virtual machine, drive around the track was a nightmare using the keyboard (i am not a gamer, so i do not have a joystick), so not useful data was collected from that attempts.
 
-###Solution Design Approach
+### Solution Design Approach
 
 Due the limited amount of images from de Udacity's dataset, i choose use left and right camera images to simulate the effect of car recovering from the sides. I add and substrac a small normalized angle of 0.1 to the left camera and right camera respectively (model.py lines 152-162). 
 
@@ -211,6 +211,6 @@ The ideal number of epochs was 5 as evidenced by the performance on the road and
 
 Finally, i did not like that the performance of the autonomous driving is affected by the architecture of the computer were the training and the simulator were running. It was very hard find an architecture that finally performs almost well on the track, taking into account that the simmulator has a poor performance in my virtual machine and taking into account that the model was trained on aws instance, the perfomance was better training in my virtual machine, instead of aws instance that trains muchs faster, so the try and error process was very painful using my virtual machine. Moreover, it was very hard to find a combination that performs well, because it is very different to train the feature extractor than to train the regressor that infers the steering angles. It was wonderful if we were able to use more engineering (like images with the lane lines founded in project 1) to train the model, i'm pretty sure that will be work perfectly.
 
-####Autonomous Driving Test
+#### Autonomous Driving Test
 ![alt text][image6]
 ![alt text][image7]
