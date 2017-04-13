@@ -1,7 +1,7 @@
 # **Project 3 - Behavioral Cloning with Keras** 
 ---
 
-** Behavrioal Cloning Project**
+**Behavrioal Cloning Project**
 
 The goals / steps of this project are the following:
 * Use the simulator to collect data of good driving behavior
